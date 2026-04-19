@@ -19,20 +19,27 @@ def fetch_pubchem_properties(smiles):
     try: 
         #Get Synonyms and Common Name
 
-        syn_res = requests.get(f"{base_url}/synonyms/JSON")
+        syn_res = requests.get(f"{base_url}/synonyms/JSON", timeout=10)
 
         if syn_res.status_code == 200:
             syns = syn_res.json().get('InformationList', {}).get('Information', [{}])[0].get('Synonym', [])
             data["synonyms_list"] = syns
             data["common_name"] = syns[0] if syns else None
 
-        time.sleep(0.2)
+        time.sleep(0.5)
 
         # Get Properties
 
-        prop_res = requests.get(f"{base_url}/property/MolecularWeight,XLogP, TPSA, ExactMass/JSON")
+        prop_res = requests.get(f"{base_url}/property/MolecularWeight,XLogP,TPSA,ExactMass/JSON", timeout=10)
         if prop_res.status_code == 200:
-            props = prop_res.json().get('PropertyTable', {}).get('Properties', [0])[0]
+            props_list = prop_res.json()\
+                .get('PropertyTable', {})\
+                .get('Properties', [])
+            
+            if props_list:
+                props = props_list[0]
+            else:
+                props = {}
 
             data["theoretical_properties"] = {"ExactMass": props.get("ExactMass"), "TPSA": props.get("TPSA")}
             data["physical_properties"] = {"MolecularWeight": props.get("MolecularWeight"), "XLogP": props.get("XLogP")}
@@ -50,15 +57,20 @@ def fetch_description(inchikey):
 
     descriptions = {}
 
-    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/{inchikey}/description/JSON"
-    res = requests.get(url)
+    try:
+        url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/{inchikey}/description/JSON"
+        res = requests.get(url, timeout=10)
 
-    if res.status_code == 200:
-        info_list = res.json().get('InformationList', {}).get('Information', [])
-        for info in info_list:
-            if 'Description' in info:
-                source = info.get('SourceName', 'PubChem')
-                descriptions[source] = info['Description']
+        if res.status_code == 200:
+            info_list = res.json().get('InformationList', {}).get('Information', [])
+            for info in info_list:
+                if 'Description' in info:
+                    source = info.get('SourceName', 'PubChem')
+                    descriptions[source] = info['Description']
 
-    time.sleep(0.2)
+        time.sleep(0.5)
+
+    except requests.exceptions.RequestException as e:
+        print(f"[WARN] PubChem failed for {inchikey}: {e}")
+
     return descriptions
