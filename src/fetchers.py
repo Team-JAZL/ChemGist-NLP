@@ -2,6 +2,7 @@
 """
 import requests
 import time
+#from chembl_webresource_client.new_client import new_client
 
 
 def fetch_pubchem_properties(smiles):
@@ -30,47 +31,39 @@ def fetch_pubchem_properties(smiles):
 
         # Get Properties
 
-        prop_res = requests.get(f"{base_url}/property/MolecularWeight,XLogP,TPSA,ExactMass/JSON", timeout=10)
-        if prop_res.status_code == 200:
-            props_list = prop_res.json()\
-                .get('PropertyTable', {})\
-                .get('Properties', [])
-            
-            if props_list:
-                props = props_list[0]
-            else:
-                props = {}
+        # Get Properties
+        prop_res = requests.get(
+            f"{base_url}/property/MolecularWeight,XLogP,TPSA,ExactMass,Charge,Complexity,MolecularFormula/JSON",
+            timeout=10
+        )
 
-            data["theoretical_properties"] = {"ExactMass": props.get("ExactMass"), "TPSA": props.get("TPSA")}
-            data["physical_properties"] = {"MolecularWeight": props.get("MolecularWeight"), "XLogP": props.get("XLogP")}
+        if prop_res.status_code == 200:
+            props_list = prop_res.json() \
+                .get('PropertyTable', {}) \
+                .get('Properties', [])
+
+            props = props_list[0] if props_list else {}
+
+            # =========================
+            # THEORETICAL PROPERTIES
+            # =========================
+            data["theoretical_properties"] = {
+                "molecular_formula": props.get("MolecularFormula"),
+                "exact_mass": props.get("ExactMass"),
+                "topological_polar_surface_area": props.get("TPSA"),
+                "complexity": props.get("Complexity"),
+            }
+
+            # =========================
+            # PHYSICAL PROPERTIES
+            # =========================
+            data["physical_properties"] = {
+                "molecular_weight": props.get("MolecularWeight"),
+                "xlogp": props.get("XLogP"),
+                "charge": props.get("Charge"),
+            }
 
     except Exception as e:
         print(f"[ERROR] Fetching properties for {smiles}: {e}")
 
     return data
-
-
-
-def fetch_description(inchikey):
-    """
-    Downloads the descriptions from open-source databases (PubChem/ChEBI)"""
-
-    descriptions = {}
-
-    try:
-        url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/{inchikey}/description/JSON"
-        res = requests.get(url, timeout=10)
-
-        if res.status_code == 200:
-            info_list = res.json().get('InformationList', {}).get('Information', [])
-            for info in info_list:
-                if 'Description' in info:
-                    source = info.get('SourceName', 'PubChem')
-                    descriptions[source] = info['Description']
-
-        time.sleep(0.5)
-
-    except requests.exceptions.RequestException as e:
-        print(f"[WARN] PubChem failed for {inchikey}: {e}")
-
-    return descriptions
