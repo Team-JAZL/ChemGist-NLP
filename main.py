@@ -22,21 +22,13 @@ def automate_pipeline(smiles_list):
         
         # Compile the final dictionary matching the DB schema
         chemical_data = {
-            "_id": inchikey,                        
-            "smiles_key": smiles,                   
+            "inchikey": inchikey,                        
+            "canonical_smiles": smiles,                   
             "common_name": properties_data.get("common_name"),
             "synonyms_list": properties_data.get("synonyms_list", []),
             "theoretical_properties": properties_data.get("theoretical_properties", {}),
             "physical_properties": properties_data.get("physical_properties", {}),
-            "descriptions": descriptions_data,
-            
-            # Placeholders for the remaining schema columns
-            "iupac_name": None,
-            "molecular_formula": None,
-            "functional_class": None,
-            "n_rot_baseline": None,
-            "atom_nodes": [],
-            "bond_edges": []
+            "descriptions": descriptions_data
         }
         
         # Save to Database
