@@ -18,7 +18,10 @@ def automate_pipeline(smiles_list):
             
         # Fetch data from APIs
         properties_data = fetch_pubchem_properties(smiles)
-        descriptions_data = fetch_description(inchikey)
+        
+        descriptions_data = fetch_description(
+            inchikey
+            )   #add chemical_name (for CheBI)
         
         # Compile the final dictionary matching the DB schema
         chemical_data = {
