@@ -29,8 +29,12 @@ def view_data():
             print(f"Synonyms    : {synonyms[:5]}") 
 
             #To see fetched descriptions from PubChem
-            print(f"Description : {descriptions.get('pubchem', 'None')}")
+            #print(f"Description : {descriptions.get('pubchem', 'None')}")
             
+            print("Descriptions:")
+            print(f"  PubChem: {descriptions.get('pubchem', 'None')}")
+            print(f"  ChEBI  : {descriptions.get('chebi', 'None')}")
+
             # Pretty-print the properties
             print("Physical Properties:")
             print(json.dumps(physical, indent=2, ensure_ascii=False))
