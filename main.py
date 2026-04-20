@@ -1,5 +1,5 @@
 from src.rdkit_parser import generate_inchikey
-from src.fetchers import fetch_pubchem_properties
+from src.fetchers import fetch_pubchem_properties, get_chebi_description
 from src.db_handler import init_db, save_to_db
 from tqdm import tqdm # For a progress bar!
 
@@ -19,9 +19,8 @@ def automate_pipeline(smiles_list):
         # Fetch data from APIs
         properties_data = fetch_pubchem_properties(smiles)
         
-        # descriptions_data = fetch_description(
-        #     inchikey
-        #     )   #add chemical_name (for CheBI)
+        # NEW: Fetch the ChEBI description!
+        chebi_description = get_chebi_description(inchikey)
         
         # Compile the final dictionary matching the DB schema
         chemical_data = {
@@ -32,7 +31,8 @@ def automate_pipeline(smiles_list):
             "theoretical_properties": properties_data.get("theoretical_properties", {}),
             "physical_properties": properties_data.get("physical_properties", {}),
             "descriptions": {
-                "pubchem": properties_data.get("description")
+                "pubchem": properties_data.get("description"),
+                "chebi": chebi_description
             }
         }
         
