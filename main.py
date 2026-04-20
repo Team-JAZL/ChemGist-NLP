@@ -31,8 +31,9 @@ def automate_pipeline(smiles_list):
             "synonyms_list": properties_data.get("synonyms_list", []),
             "theoretical_properties": properties_data.get("theoretical_properties", {}),
             "physical_properties": properties_data.get("physical_properties", {}),
-            "descriptions": {}
-            
+            "descriptions": {
+                "pubchem": properties_data.get("description")
+            }
         }
         
         # Save to Database
