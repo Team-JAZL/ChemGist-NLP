@@ -23,9 +23,13 @@ def view_data():
             synonyms = json.loads(row['synonyms_list'])
             theoretical = json.loads(row['theoretical_properties'])
             physical = json.loads(row['physical_properties'])
+            descriptions = json.loads(row['descriptions'])
             
             # Print just the first 5 synonyms
             print(f"Synonyms    : {synonyms[:5]}") 
+
+            #To see fetched descriptions from PubChem
+            print(f"Description : {descriptions.get('pubchem', 'None')}")
             
             # Pretty-print the properties
             print("Physical Properties:")
