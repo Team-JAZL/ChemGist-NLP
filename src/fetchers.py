@@ -225,6 +225,40 @@ def get_pubchem_description(cid):
             
     return None
 
+def get_chebi_description(inchikey):
+    """
+    Fetches the description (called a 'definition' in ChEBI) 
+    using the modern ChEBI REST API.
+    """
+    if not inchikey:
+        return None
+        
+    url = "https://www.ebi.ac.uk/chebi/backend/api/public/es_search/"
+    
+    # We pass the InChIKey as the search term and limit results to 1
+    params = {
+        "term": inchikey, 
+        "size": 1
+    }
+    
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            results = response.json().get("results", [])
+            
+            if results:
+                # The chemical data is stored inside the '_source' block
+                source_data = results[0].get("_source", {})
+                
+                # ChEBI uses the key 'definition' for their text descriptions
+                return source_data.get("definition")
+                
+    except Exception as e:
+        print(f"[WARNING] Could not fetch ChEBI data for {inchikey}: {e}")
+        
+    return None
+
 def fetch_pubchem_properties(smiles):
     """Downloads the theoretical/physical properties, common_name, synonyms, and description."""
     safe_smiles = urllib.parse.quote(smiles)
@@ -276,7 +310,7 @@ def fetch_pubchem_properties(smiles):
 
             time.sleep(0.5)
 
-            # 3. Get Physical Properties & Description (Requires CID)
+            # Get Physical Properties & Description (Requires CID)
             if cid:
                 # Fetch Description
                 data["description"] = get_pubchem_description(cid)
