@@ -34,6 +34,8 @@ def view_data():
             print("Descriptions:")
             print(f"  PubChem: {descriptions.get('pubchem', 'None')}")
             print(f"  ChEBI  : {descriptions.get('chebi', 'None')}")
+            print(f"  ChEMBL  : {descriptions.get('chembl', 'None')}")
+            print(f"  Wikipedia  : {descriptions.get('wikipedia', 'None')}")
 
             # Pretty-print the properties
             print("Physical Properties:")
