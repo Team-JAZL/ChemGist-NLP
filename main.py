@@ -1,7 +1,11 @@
+import os
+import time
 from src.rdkit_parser import generate_inchikey
-from src.fetchers import fetch_pubchem_properties, get_chebi_description
+from src.fetchers import fetch_pubchem_properties, get_chebi_description, get_chembl_description, get_wikipedia_description
 from src.db_handler import init_db, save_to_db
 from tqdm import tqdm # For a progress bar!
+
+
 
 def automate_pipeline(smiles_list):
     print("Initializing Database...")
@@ -18,9 +22,23 @@ def automate_pipeline(smiles_list):
             
         # Fetch data from APIs
         properties_data = fetch_pubchem_properties(smiles)
-        
-        # NEW: Fetch the ChEBI description!
+
+        common_name = properties_data.get("common_name")
+        synonyms = properties_data.get("synonyms_list", [])
+
+        # If common_name exists, use it. If not, try to use the first synonym.
+        if common_name:
+            wiki_search_term = common_name
+        elif synonyms:
+            wiki_search_term = synonyms[0]
+        else:
+            wiki_search_term = None # If we have absolutely no names, give up on Wikipedia
+            
+        print(f"\n[DEBUG] Searching Wikipedia for: '{wiki_search_term}'")
+
         chebi_description = get_chebi_description(inchikey)
+        chembl_description = get_chembl_description(inchikey)
+        wikipedia_description = get_wikipedia_description(wiki_search_term)
         
         # Compile the final dictionary matching the DB schema
         chemical_data = {
@@ -32,21 +50,24 @@ def automate_pipeline(smiles_list):
             "physical_properties": properties_data.get("physical_properties", {}),
             "descriptions": {
                 "pubchem": properties_data.get("description"),
-                "chebi": chebi_description
+                "chebi": chebi_description,
+                "chembl": chembl_description,
+                "wikipedia": wikipedia_description
             }
         }
         
         # Save to Database
         save_to_db(chemical_data)
+
+        time.sleep(1) # Sleep to avoid hitting API rate limits (adjust as needed)
         
     print("Pipeline completed successfully!")
 
 if __name__ == "__main__":
-    import os
     import pandas as pd
     
     # TODO: Update this path with the actual dataset 
-    dataset_path = "data/raw_dataset.csv" 
+    dataset_path = "data/raw_dataset (2).csv" 
     
     # Check if dataset has been added to the folder
     if os.path.exists(dataset_path):
