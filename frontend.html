@@ -436,32 +436,29 @@
             toggleEmptyState();
         }
 
-        // Mock API - EASILY REPLACEABLE
-        // TODO: Replace with real API:
-        // const res = await fetch('/api/biochemistry', { method: 'POST', body: JSON.stringify({ input }) });
-        // return await res.text();
+        // Connected to ChemGist API - Uses fine-tuned model for responses
         async function getChemGistResponse(input) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // Check for specific biochemistry keywords
-                    const lower = input.toLowerCase();
-                    let response;
-                    
-                    if (lower.includes('tertiary') || lower.includes('protein structure') || lower.includes('folding')) {
-                        response = "Biochemical Analysis of Protein Tertiary Structure: The 3D conformation arises from interactions between R-groups. Hydrophobic side chains cluster internally (hydrophobic effect), while polar/charged residues face aqueous environments. Disulfide bonds (cysteine residues) provide covalent cross-links. Example: Hemoglobin's tetrameric structure enables cooperative O₂ binding.";
-                    } else if (lower.includes('polymerase') || lower.includes('dna') || lower.includes('rna')) {
-                        response = "Biochemical Analysis of Polymerases: DNA polymerase requires a primer (3'-OH), synthesizes 5'→3', and has 3'→5' exonuclease proofreading. RNA polymerase initiates de novo at promoters, lacks proofreading, and is sensitive to α-amanitin inhibition. Both use Mg²⁺ cofactors for phosphodiester bond formation.";
-                    } else if (lower.includes('krebs') || lower.includes('citric acid cycle') || lower.includes('tca')) {
-                        response = "Biochemical Analysis of the Krebs Cycle: This mitochondrial matrix process oxidizes acetyl-CoA to 2CO₂. Per cycle: 3 NADH, 1 FADH₂, 1 GTP (substrate-level phosphorylation). Key enzymes: Citrate synthase (regulated), Isocitrate dehydrogenase (rate-limiting), and α-ketoglutarate dehydrogenase. Total ATP yield: ~10-12 per acetyl-CoA.";
-                    } else if (lower.includes('glucose') || lower.includes('c6h12o6') || lower.includes('sugar')) {
-                        response = "Biochemical Analysis of Glucose (C₆H₁₂O₆): This aldohexose exists as α/β anomers in cyclic pyranose form. Glycolysis yields 2 pyruvate + 2ATP + 2NADH. Entry into the mitochondria requires the pyruvate dehydrogenase complex (PDC), generating acetyl-CoA, CO₂, and NADH via oxidative decarboxylation.";
-                    } else {
-                        response = biochemistryResponses[Math.floor(Math.random() * biochemistryResponses.length)];
-                    }
-                    
-                    resolve(response);
-                }, 1000); // 1 second delay as requested
-            });
+            try {
+                const response = await fetch('http://localhost:5000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: input })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.answer || "No response generated.";
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                return `⚠️ Connection error: ${error.message}. Make sure the ChemGist API server is running on http://localhost:5000`;
+            }
         }
 
         // Send Message Handler
