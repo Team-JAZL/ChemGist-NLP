@@ -10,7 +10,7 @@ def view_data():
         cursor = conn.cursor()
         
         # Get all records
-        cursor.execute("SELECT * FROM chemical_knowledge_base")
+        cursor.execute("SELECT * FROM chemical_knowledge_base LIMIT 5")
         rows = cursor.fetchall()
         
         print(f"=== Found {len(rows)} chemicals in the database ===\n")
