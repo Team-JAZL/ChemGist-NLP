@@ -1,10 +1,10 @@
 import os
 import pandas as pd
-from src.dataset_filter import filter_chon_dataset
+from dataset_filter import filter_chon_dataset
 
 def test_the_filter():
-    dataset_path = "data/ZINC-250k.csv"
-    output_path = "data/filtered_test_results.csv"
+    dataset_path = "../data/ZINC-250k.csv"
+    output_path = "../data/filtered_test_results.csv"
     
     if not os.path.exists(dataset_path):
         print(f"Error: Could not find {dataset_path}")
