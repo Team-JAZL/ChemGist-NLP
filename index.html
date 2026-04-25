@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChemGist - Chemistry AI Assistant</title>
+    <title>ChemGist - Organic Chemistry AI Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -21,65 +21,7 @@
             }
         }
     </script>
-    <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #94A3B8;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748B;
-        }
-
-        /* Animations */
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pulse-dot {
-            0%, 100% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-        .message-enter {
-            animation: slideIn 0.3s ease-out forwards;
-        }
-        .thinking-dot {
-            animation: pulse-dot 1.4s infinite ease-in-out both;
-        }
-        .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
-        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        /* Auto-expanding textarea */
-        textarea {
-            resize: none;
-            overflow-y: auto;
-            min-height: 44px;
-            max-height: 120px;
-        }
-
-        /* Chemical subscript styling */
-        .chemistry-sub {
-            font-size: 0.75em;
-            vertical-align: sub;
-            line-height: 0;
-        }
-        .chemistry-sup {
-            font-size: 0.75em;
-            vertical-align: super;
-            line-height: 0;
-        }
-
-        /* Dark mode specific overrides */
-        .dark .scrollbar-thumb {
-            background: #475569;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-surface dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-screen overflow-hidden transition-colors duration-300">
 
@@ -90,10 +32,10 @@
             <div class="p-4 border-b border-slate-800">
                 <!-- LOGO-SWAP-HERE -->
                 <div class="flex flex-col items-center gap-2 mb-2">
-                    <img id="brand-logo" src="YOUR_UPLOADED_IMAGE_URL" alt="ChemGist Logo" class="w-full h-auto max-w-[180px] p-2">
+                    <img id="brand-logo" src="assets/logo.png" alt="ChemGist Logo" class="w-full h-auto max-w-[80px]">
                     <div class="text-center">
                         <h1 class="font-bold text-xl text-white">ChemGist</h1>
-                        <p class="text-xs text-slate-400">AI Biochemistry Lab</p>
+                        <p class="text-xs text-slate-400">AI Organic Chemistry Lab</p>
                     </div>
                 </div>
                 <!-- LOGO-SWAP-HERE -->
@@ -132,7 +74,7 @@
             <header class="h-16 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm flex items-center justify-between px-6">
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                     <i data-lucide="microscope" class="w-5 h-5 text-teal-600 dark:text-teal-400"></i>
-                    <span class="text-sm font-medium">Biochemistry Research Assistant</span>
+                    <span class="text-sm font-medium">Organic Chemistry Research Assistant</span>
                 </div>
             </header>
 
@@ -147,18 +89,18 @@
                                 <i data-lucide="dna" class="w-8 h-8 text-teal-600 dark:text-teal-400"></i>
                             </div>
                             <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Welcome to ChemGist</h2>
-                            <p class="text-slate-500 dark:text-slate-400">Your AI-powered biochemistry research assistant</p>
+                            <p class="text-slate-500 dark:text-slate-400">Your AI-powered organic chemistry assistant</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full px-4">
                             <button class="suggestion-card p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-teal-500 hover:shadow-md transition-all text-left group">
                                 <div class="flex items-start gap-3">
                                     <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
-                                        <i data-lucide="protein" class="w-4 h-4"></i>
+                                        <i data-lucide="molecule" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">Protein Structure</h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Explain the tertiary structure of a protein.</p>
+                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">Carbon Dioxide</h3>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">What is the structure and bonding in CO₂?</p>
                                     </div>
                                 </div>
                             </button>
@@ -166,11 +108,11 @@
                             <button class="suggestion-card p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-teal-500 hover:shadow-md transition-all text-left group">
                                 <div class="flex items-start gap-3">
                                     <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400">
-                                        <i data-lucide="binary" class="w-4 h-4"></i>
+                                        <i data-lucide="atom" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">DNA vs RNA</h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">What are the key differences between DNA and RNA polymerase?</p>
+                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">Molecular Formula</h3>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Find the molecular formula for ethanol, benzene, or glucose.</p>
                                     </div>
                                 </div>
                             </button>
@@ -178,11 +120,11 @@
                             <button class="suggestion-card p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-teal-500 hover:shadow-md transition-all text-left group">
                                 <div class="flex items-start gap-3">
                                     <div class="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400">
-                                        <i data-lucide="cycle" class="w-4 h-4"></i>
+                                        <i data-lucide="flask" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">Krebs Cycle</h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Describe the steps of the Krebs Cycle.</p>
+                                        <h3 class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-teal-600 transition-colors text-sm">Functional Groups</h3>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Explain common organic functional groups and examples.</p>
                                     </div>
                                 </div>
                             </button>
@@ -215,7 +157,7 @@
                     <form id="chat-form" class="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-2 shadow-lg transition-colors">
                         <textarea 
                             id="user-input" 
-                            placeholder="Ask about chemical formulas, elements, or reactions..." 
+                            placeholder="Ask about organic molecules, formulas, or reactions..." 
                             class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 px-4 py-3 text-[15px] w-full outline-none resize-none"
                             rows="1"
                         ></textarea>
@@ -237,318 +179,20 @@
         </main>
     </div>
 
-    <script type="module">
-        // Import the official Gradio client via CDN
-        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
-        
-        // Initialize Lucide Icons
-        lucide.createIcons();
 
-        // State Management
-        const state = {
-            currentChatId: Date.now().toString(),
-            messages: [],
-            isTyping: false,
-            theme: localStorage.getItem('theme') || 'light'
-        };
-
-        // DOM Elements
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const messagesContainer = document.getElementById('messages-container');
-        const emptyState = document.getElementById('empty-state');
-        const thinkingIndicator = document.getElementById('thinking-indicator');
-        const sendBtn = document.getElementById('send-btn');
-        const chatContainer = document.getElementById('chat-container');
-        const chatHistoryList = document.getElementById('chat-history-list');
-        const newChatBtn = document.getElementById('new-chat-btn');
-        const themeToggle = document.getElementById('theme-toggle');
-
-        // Theme Management
-        function applyTheme() {
-            if (state.theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-            localStorage.setItem('theme', state.theme);
+    <div id="file-protocol-warning" class="hidden fixed inset-x-0 top-6 mx-auto max-w-3xl px-4">
+        <div class="rounded-2xl border border-amber-400 bg-amber-50/95 text-amber-900 px-4 py-3 text-sm shadow-sm">
+            <strong class="font-semibold">Local file warning:</strong>
+            This app must be served over HTTP/HTTPS to load JavaScript modules.
+            Run <code>python -m http.server 8000</code> in this folder and open <a class="underline" href="http://localhost:8000">http://localhost:8000</a>.
+        </div>
+    </div>
+    <script>
+        if (location.protocol === 'file:') {
+            const warning = document.getElementById('file-protocol-warning');
+            if (warning) warning.classList.remove('hidden');
         }
-
-        themeToggle.addEventListener('click', () => {
-            state.theme = state.theme === 'light' ? 'dark' : 'light';
-            applyTheme();
-            lucide.createIcons();
-        });
-
-        // Initialize theme
-        applyTheme();
-
-        // Chat History Management
-        function saveChatHistory() {
-            const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
-            const existingIndex = history.findIndex(h => h.id === state.currentChatId);
-            const chatTitle = state.messages[0]?.content.substring(0, 30) + '...' || 'New Chat';
-            
-            const chatData = {
-                id: state.currentChatId,
-                title: chatTitle,
-                timestamp: Date.now(),
-                preview: state.messages[state.messages.length - 1]?.content.substring(0, 50) + '...' || 'No messages'
-            };
-
-            if (existingIndex >= 0) {
-                history[existingIndex] = chatData;
-            } else {
-                history.unshift(chatData);
-            }
-
-            // Keep only last 10 chats
-            if (history.length > 10) history.pop();
-            
-            localStorage.setItem('chemgist_history', JSON.stringify(history));
-            renderChatHistory();
-        }
-
-        function renderChatHistory() {
-            const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
-            
-            if (history.length === 0) {
-                chatHistoryList.innerHTML = '<p class="text-xs text-slate-400 dark:text-slate-500 px-2 italic">No chat history yet</p>';
-                return;
-            }
-
-            chatHistoryList.innerHTML = history.map(chat => `
-                <button onclick="loadChat('${chat.id}')" class="w-full text-left p-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group ${chat.id === state.currentChatId ? 'bg-slate-100 dark:bg-slate-700/50 border-l-2 border-primary' : ''}">
-                    <div class="flex items-start gap-2">
-                        <i data-lucide="message-square" class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0"></i>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">${chat.title}</p>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">${chat.preview}</p>
-                        </div>
-                    </div>
-                </button>
-            `).join('');
-            
-            lucide.createIcons();
-        }
-
-        function loadChat(chatId) {
-            // Save current before switching
-            if (state.messages.length > 0) saveChatHistory();
-            
-            state.currentChatId = chatId;
-            state.messages = JSON.parse(localStorage.getItem(`chat_${chatId}`) || '[]');
-            
-            if (state.messages.length > 0) {
-                renderAllMessages();
-            } else {
-                startNewChat();
-            }
-            
-            renderChatHistory();
-        }
-
-        // Text Processing for Chemistry
-        function formatChemistryText(text) {
-            // Convert H2O to H<span class="chemistry-sub">2</span>O
-            let formatted = text.replace(/([A-Z][a-z]?)(\d+)/g, (match, element, num) => {
-                return `${element}<span class="chemistry-sub">${num}</span>`;
-            });
-            
-            // Convert superscripts like 10^23 or Ca^2+
-            formatted = formatted.replace(/\^(-?\d+|[+-])/g, (match, num) => {
-                return `<span class="chemistry-sup">${num}</span>`;
-            });
-            
-            // Basic markdown
-            formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-            formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
-            
-            return formatted;
-        }
-
-        // UI Helpers
-        function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
-
-        function toggleEmptyState() {
-            if (state.messages.length === 0) {
-                emptyState.classList.remove('hidden');
-                messagesContainer.classList.add('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                messagesContainer.classList.remove('hidden');
-            }
-        }
-
-        function setThinking(visible) {
-            state.isTyping = visible;
-            thinkingIndicator.classList.toggle('hidden', !visible);
-            if (visible) scrollToBottom();
-        }
-
-        // Message Rendering
-        function renderMessage(message, isUser = false) {
-            const div = document.createElement('div');
-            div.className = `flex gap-4 message-enter ${isUser ? 'flex-row-reverse' : ''}`;
-            
-            const avatar = isUser 
-                ? `<div class="w-8 h-8 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 flex-shrink-0"><i data-lucide="user" class="w-4 h-4"></i></div>`
-                : `<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0 shadow-md"><i data-lucide="flask-conical" class="w-4 h-4"></i></div>`;
-            
-            const bubbleClass = isUser
-                ? 'bg-primary text-white rounded-2xl rounded-tr-none shadow-md'
-                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl rounded-tl-none shadow-sm';
-            
-            const content = formatChemistryText(message);
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            div.innerHTML = `
-                ${avatar}
-                <div class="flex-1 ${isUser ? 'text-right' : ''} max-w-[85%]">
-                    <div class="${bubbleClass} px-5 py-3.5 inline-block text-left">
-                        <div class="leading-relaxed text-[15px]">${content}</div>
-                    </div>
-                    <div class="text-xs text-slate-400 dark:text-slate-500 mt-1 ${isUser ? 'mr-1' : 'ml-1'}">${time}</div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(div);
-            lucide.createIcons();
-            scrollToBottom();
-        }
-
-        function renderAllMessages() {
-            messagesContainer.innerHTML = '';
-            state.messages.forEach(msg => renderMessage(msg.content, msg.role === 'user'));
-            toggleEmptyState();
-        }
-
-        // Connected to ChemGist API
-        async function getChemGistResponse(input) {
-            try {
-                // 1. Connect to Hugging Face Space using the official client
-                const client = await Client.connect("JAZL/ChemGist-API");
-                
-                // 2. Send the message to specific Gradio endpoint
-                const result = await client.predict("/generate_answer", {
-                    message: input,
-                });
-                
-                // 3. Extract the generated answer
-                if (result && result.data && result.data.length > 0) {
-                    return result.data[0];
-                } else {
-                    throw new Error("No response generated.");
-                }
-                
-            } catch (error) {
-                console.error('API Error:', error);
-                return `⚠️ Connection error: ${error.message}.`;
-            }
-        }
-
-        // Send Message Handler
-        async function handleSend(input) {
-            if (!input.trim() || state.isTyping) return;
-            
-            // Hide empty state
-            emptyState.classList.add('hidden');
-            messagesContainer.classList.remove('hidden');
-            
-            // Add user message
-            const userMessage = { role: 'user', content: input, timestamp: Date.now() };
-            state.messages.push(userMessage);
-            renderMessage(input, true);
-            
-            // Clear input
-            userInput.value = '';
-            userInput.style.height = 'auto';
-            sendBtn.disabled = true;
-            
-            // Save to localStorage
-            localStorage.setItem(`chat_${state.currentChatId}`, JSON.stringify(state.messages));
-            saveChatHistory();
-            
-            // Show thinking
-            setThinking(true);
-            
-            // Get response
-            try {
-                const response = await getChemGistResponse(input);
-                const aiMessage = { role: 'assistant', content: response, timestamp: Date.now() };
-                state.messages.push(aiMessage);
-                setThinking(false);
-                renderMessage(response, false);
-                
-                // Save updated chat
-                localStorage.setItem(`chat_${state.currentChatId}`, JSON.stringify(state.messages));
-                saveChatHistory();
-            } catch (error) {
-                setThinking(false);
-                renderMessage("⚠️ Connection error. Please try again.", false);
-            }
-        }
-
-        // New Chat Handler
-        function startNewChat() {
-            // Save current chat if has messages
-            if (state.messages.length > 0) {
-                saveChatHistory();
-            }
-            
-            // Reset state
-            state.currentChatId = Date.now().toString();
-            state.messages = [];
-            
-            // Clear UI
-            messagesContainer.innerHTML = '';
-            toggleEmptyState();
-            
-            // Update history UI
-            renderChatHistory();
-            
-            // Focus input
-            userInput.focus();
-        }
-
-        // Event Listeners
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleSend(userInput.value);
-        });
-
-        newChatBtn.addEventListener('click', startNewChat);
-
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-            sendBtn.disabled = this.value.trim().length === 0;
-        });
-
-        userInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (this.value.trim()) handleSend(this.value);
-            }
-        });
-
-        // Suggestion Cards
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const text = card.querySelector('p').textContent;
-                handleSend(text);
-            });
-        });
-
-        // Initialize
-        renderChatHistory();
-        toggleEmptyState();
-        userInput.focus();
-
-        // Make loadChat available globally for onclick handlers
-        window.loadChat = loadChat;
     </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
