@@ -1,0 +1,57 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #94A3B8;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #64748B;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+}
+.message-enter {
+    animation: slideIn 0.3s ease-out forwards;
+}
+.thinking-dot {
+    animation: pulse-dot 1.4s infinite ease-in-out both;
+}
+.thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+
+/* Auto-expanding textarea */
+textarea {
+    resize: none;
+    overflow-y: auto;
+    min-height: 44px;
+    max-height: 120px;
+}
+
+/* Chemical subscript styling */
+.chemistry-sub {
+    font-size: 0.75em;
+    vertical-align: sub;
+    line-height: 0;
+}
+.chemistry-sup {
+    font-size: 0.75em;
+    vertical-align: super;
+    line-height: 0;
+}
+
+/* Dark mode specific overrides */
+.dark .scrollbar-thumb {
+    background: #475569;
+}
