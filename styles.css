@@ -31,6 +31,37 @@
 .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
 .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
 
+.history-action-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: #cbd5e1;
+    box-shadow: 0 10px 20px -12px rgba(15, 23, 42, 0.2);
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dark .history-action-button {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(71, 85, 105, 0.35);
+    color: #cbd5e1;
+}
+
+.history-action-button:hover {
+    color: #0f172a;
+    background: rgba(248, 250, 252, 0.95);
+    border-color: rgba(148, 163, 184, 0.7);
+}
+
+.dark .history-action-button:hover {
+    background: rgba(148, 163, 184, 0.08);
+}
+
 /* Auto-expanding textarea */
 textarea {
     resize: none;

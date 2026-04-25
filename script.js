@@ -46,7 +46,8 @@ applyTheme();
 function saveChatHistory() {
     const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
     const existingIndex = history.findIndex(h => h.id === state.currentChatId);
-    const chatTitle = state.messages[0]?.content.substring(0, 30) + '...' || 'New Chat';
+    const existingTitle = existingIndex >= 0 ? history[existingIndex].title : null;
+    const chatTitle = existingTitle || state.messages[0]?.content || 'New Chat';
     
     const chatData = {
         id: state.currentChatId,
@@ -67,6 +68,69 @@ function saveChatHistory() {
     renderChatHistory();
 }
 
+function closeHistoryMenus() {
+    document.querySelectorAll('.history-menu').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+}
+
+function toggleHistoryMenu(chatId, event) {
+    event.stopPropagation();
+    closeHistoryMenus();
+    const menu = document.getElementById(`history-menu-${chatId}`);
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+}
+
+function renameChat(chatId) {
+    closeHistoryMenus();
+    const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
+    const chat = history.find(h => h.id === chatId);
+    if (!chat) return;
+
+    const promptValue = chat.title.replace(/\.\.\.$/, '');
+    const newTitle = window.prompt('Rename chat title:', promptValue);
+    if (newTitle === null) return;
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) return;
+
+    chat.title = trimmedTitle;
+    localStorage.setItem('chemgist_history', JSON.stringify(history));
+    renderChatHistory();
+}
+
+function deleteChat(chatId) {
+    closeHistoryMenus();
+    const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
+    const chatIndex = history.findIndex(h => h.id === chatId);
+    if (chatIndex === -1) return;
+
+    const chat = history[chatIndex];
+    const confirmed = window.confirm(`Delete chat \"${chat.title}\"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    history.splice(chatIndex, 1);
+    localStorage.setItem('chemgist_history', JSON.stringify(history));
+    localStorage.removeItem(`chat_${chatId}`);
+
+    if (state.currentChatId === chatId) {
+        if (history.length > 0) {
+            state.messages = [];
+            state.currentChatId = history[0].id;
+            loadChat(history[0].id);
+        } else {
+            state.currentChatId = Date.now().toString();
+            state.messages = [];
+            messagesContainer.innerHTML = '';
+            toggleEmptyState();
+            renderChatHistory();
+        }
+    } else {
+        renderChatHistory();
+    }
+}
+
 function renderChatHistory() {
     const history = JSON.parse(localStorage.getItem('chemgist_history') || '[]');
     
@@ -76,19 +140,65 @@ function renderChatHistory() {
     }
 
     chatHistoryList.innerHTML = history.map(chat => `
-        <button onclick="loadChat('${chat.id}')" class="w-full text-left p-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group ${chat.id === state.currentChatId ? 'bg-slate-100 dark:bg-slate-700/50 border-l-2 border-primary' : ''}">
-            <div class="flex items-start gap-2">
-                <i data-lucide="message-square" class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0"></i>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">${chat.title}</p>
-                    <p class="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">${chat.preview}</p>
+        <div class="relative group">
+            <div data-history-id="${chat.id}" class="chat-history-row w-full cursor-pointer text-left p-2.5 rounded-lg group-hover:bg-slate-100 dark:group-hover:bg-slate-700/50 transition-colors ${chat.id === state.currentChatId ? 'bg-slate-100 dark:bg-slate-700/50 border-l-2 border-primary' : ''}">
+                <div class="flex items-start gap-2">
+                    <i data-lucide="message-square" class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-slate-100 truncate">${chat.title}</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">${chat.preview}</p>
+                    </div>
                 </div>
             </div>
-        </button>
+            <button data-history-action="menu" data-chat-id="${chat.id}" type="button" class="history-action-button absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <span class="sr-only">Open chat actions</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+            <div id="history-menu-${chat.id}" class="history-menu hidden absolute top-10 right-3 z-10 w-40 rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 shadow-lg py-1">
+                <button data-history-action="rename" data-chat-id="${chat.id}" type="button" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Rename Title</button>
+                <button data-history-action="delete" data-chat-id="${chat.id}" type="button" class="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-700">Delete Chat</button>
+            </div>
+        </div>
     `).join('');
-    
+
     lucide.createIcons();
+    setupHistoryActions();
 }
+
+function setupHistoryActions() {
+    document.querySelectorAll('.chat-history-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const chatId = row.dataset.historyId;
+            loadChat(chatId);
+        });
+    });
+
+    document.querySelectorAll('[data-history-action="menu"]').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            closeHistoryMenus();
+            const chatId = button.dataset.chatId;
+            const menu = document.getElementById(`history-menu-${chatId}`);
+            if (menu) menu.classList.toggle('hidden');
+        });
+    });
+
+    document.querySelectorAll('[data-history-action="rename"]').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            renameChat(button.dataset.chatId);
+        });
+    });
+
+    document.querySelectorAll('[data-history-action="delete"]').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            deleteChat(button.dataset.chatId);
+        });
+    });
+}
+
+window.addEventListener('click', closeHistoryMenus);
 
 function loadChat(chatId) {
     if (state.messages.length > 0) saveChatHistory();
