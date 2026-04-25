@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-DB_PATH = "data/chemical_dataset.db"
+DB_PATH = "../data/chemical_dataset.db"
 
 def view_data():
     # Connect to the database

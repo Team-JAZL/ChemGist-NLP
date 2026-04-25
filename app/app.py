@@ -1,65 +1,78 @@
 import gradio as gr
-import torch
 import os
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from huggingface_hub import hf_hub_download
+from llama_cpp import Llama
 
-# Name of your public/private model on Hugging Face
-model_id = "JAZL/ChemGist-Phi3"
-
-# Fetch the secret token we just added to the Space settings
+# 1. Securely fetch token
 hf_token = os.environ.get("HF_TOKEN")
 
-print(f"Loading tokenizer and model for {model_id} on CPU. This will take a few minutes...")
+repo_id = "JAZL/ChemGist-Phi3-Q4_K_M-GGUF" 
+filename = "chemgist-phi3-q4_k_m.gguf" 
 
-# Pass the token to the tokenizer
-tokenizer = AutoTokenizer.from_pretrained(
-    model_id, 
+print(f"⏳ Downloading {filename} from {repo_id}...")
+# This downloads the file to the container's local storage
+model_path = hf_hub_download(
+    repo_id=repo_id, 
+    filename=filename, 
     token=hf_token
 )
 
-# Pass the token to the model
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    device_map="cpu",
-    torch_dtype=torch.float16,
-    low_cpu_mem_usage=True,
-    token=hf_token
+print("🧠 Loading model into llama.cpp engine...")
+# 2. Initialize llama.cpp
+llm = Llama(
+    model_path=model_path,
+    n_ctx=4096,       # Context window
+    n_threads=2,      # Perfectly matches the Hugging Face Free Tier CPU limits
+    verbose=False     # Hides C++ log spam
 )
-print("Model loaded successfully into CPU memory!")
+print("✅ Model loaded and ready!")
 
 def generate_answer(message: str) -> str:
+    # 3. Dynamic Prompting Strategy
+    # We use explicit negative constraints to stop database hallucinations natively.
     prompt = (
         "<|user|>\n"
-        "You are ChemGist, an intelligent and conversational chemistry assistant. Answer the user's question accurately based on your training.\n\n"
-        "Answer the user's question by weaving the following facts into a natural, flowing paragraph. "
-        "CRITICAL: Do NOT use colons. Do NOT use bullet points. Do NOT output a list. "
-        "Write in complete sentences as if explaining it to a friend.\n\n"
+        "You are ChemGist, an intelligent, warm, and conversational chemistry assistant trained exclusively on the ChemGist-CHON dataset. "
+        "Explain chemical concepts accurately, clearly, and naturally.\n\n"
+        "CRITICAL INSTRUCTIONS:\n"
+        "- FOCUS: Concentrate STRICTLY on chemical definitions, physical/chemical properties, molecular structures, and real-world applications.\n"
+        "- DATABASE GUARDS: Do NOT mention 'Unnamed Compound', 'ChEMBL', 'PubChem', 'database listings', 'clinical phases', 'assays', or 'target organisms'.\n"
+        "- IDENTIFIER GUARDS: Do NOT output raw chemical identifiers like SMILES strings, InChI keys, or CIDs unless explicitly asked.\n"
+        "- TONE GUARDS: Do NOT use robotic boilerplate phrases like 'This compound is listed as...' or 'Information is not available.'\n"
+        "- FORMATTING: Do NOT use colons, bullet points, numbered lists, or line breaks. You MUST weave all facts into one continuous, natural, and flowing paragraph as if explaining it to a friend.\n\n"
         f"Question: {message}<|end|>\n"
         "<|assistant|>\n"
     )
     
-    # Send inputs to CPU
-    inputs = tokenizer(prompt, return_tensors="pt").to("cpu")
-    
-    # Generate the text
-    # NOTE: max_new_tokens is set to 200 to prevent CPU timeouts
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=200,
+    # 4. Generate the response using llama.cpp
+    output = llm(
+        prompt,
+        max_tokens=512,
         temperature=0.3,
         top_p=0.9,
-        repetition_penalty=1.1,
-        do_sample=True
+        repeat_penalty=1.1,
+        stop=["<|end|>", "<|user|>"], 
+        echo=False 
     )
     
-    full_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Extract the text
+    answer = output['choices'][0]['text'].strip()
     
-    # Clean up the output to only return the assistant's reply
-    if "<|assistant|>" in full_response:
-        answer = full_response.split("<|assistant|>")[-1].strip()
-    else:
-        answer = full_response.strip()
+    # 5. Dynamic Sentence Trimming (Post-Processing)
+    # If the response gets cut off and doesn't end with proper punctuation, 
+    # we search backwards to find the last complete sentence and slice the string there.
+    if answer and answer[-1] not in ['.', '!', '?']:
+        last_period = answer.rfind('.')
+        last_exclamation = answer.rfind('!')
+        last_question = answer.rfind('?')
         
+        # Find whichever punctuation mark came last in the text
+        last_punct = max(last_period, last_exclamation, last_question)
+        
+        # If we found punctuation, cut off the broken fragment after it
+        if last_punct != -1:
+            answer = answer[:last_punct + 1]
+
     return answer
 
 # Build the Gradio Interface
@@ -67,9 +80,8 @@ demo = gr.Interface(
     fn=generate_answer,
     inputs=gr.Textbox(label="User Question", placeholder="Type your chemistry question here..."),
     outputs=gr.Textbox(label="ChemGist Answer"),
-    title="ChemGist API Server (CPU Version)",
-    description="This Space hosts the ChemGist-Phi3 model on a Free CPU. Please be patient, CPU inference is slow and replies may take 1-3 minutes."
+    title="ChemGist API Server (⚡ GGUF Speed)",
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(ssr_mode=False)
