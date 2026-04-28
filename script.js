@@ -8,7 +8,8 @@ const state = {
     currentChatId: Date.now().toString(),
     messages: [],
     isTyping: false,
-    theme: localStorage.getItem('theme') || 'light'
+    theme: localStorage.getItem('theme') || 'light',
+    sidebarOpen: false
 };
 
 // DOM Elements
@@ -22,6 +23,43 @@ const chatContainer = document.getElementById('chat-container');
 const chatHistoryList = document.getElementById('chat-history-list');
 const newChatBtn = document.getElementById('new-chat-btn');
 const themeToggle = document.getElementById('theme-toggle');
+const sidebar = document.getElementById('sidebar');
+const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+const chatInputWrapper = document.getElementById('chat-input-wrapper');
+
+function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    sidebar.classList.add('translate-x-0');
+    sidebarBackdrop.classList.remove('hidden');
+    sidebarBackdrop.classList.add('block');
+    state.sidebarOpen = true;
+}
+
+function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    sidebar.classList.remove('translate-x-0');
+    sidebarBackdrop.classList.add('hidden');
+    sidebarBackdrop.classList.remove('block');
+    state.sidebarOpen = false;
+}
+
+function handleMobileSidebarToggle() {
+    if (state.sidebarOpen) {
+        closeSidebar();
+    } else {
+        openSidebar();
+    }
+}
+
+function updateChatContainerBottomPadding() {
+    if (!chatContainer || !chatInputWrapper) return;
+    const wrapperHeight = chatInputWrapper.offsetHeight;
+    const extra = 24; // extra space below the input
+    chatContainer.style.paddingBottom = `${wrapperHeight + extra}px`;
+    chatContainer.style.scrollPaddingBottom = `${wrapperHeight + extra}px`;
+}
 
 // Theme Management
 function applyTheme() {
@@ -39,8 +77,31 @@ themeToggle.addEventListener('click', () => {
     lucide.createIcons();
 });
 
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', handleMobileSidebarToggle);
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+
+function initializeSidebarState() {
+    if (window.innerWidth < 768) {
+        openSidebar();
+    } else {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarBackdrop.classList.add('hidden');
+        sidebarBackdrop.classList.remove('block');
+        state.sidebarOpen = false;
+    }
+}
+
+window.addEventListener('resize', () => {
+    initializeSidebarState();
+    updateChatContainerBottomPadding();
+});
+
 // Initialize theme
 applyTheme();
+initializeSidebarState();
+updateChatContainerBottomPadding();
 
 // Chat History Management
 function saveChatHistory() {
@@ -213,6 +274,7 @@ function loadChat(chatId) {
     }
     
     renderChatHistory();
+    if (window.innerWidth < 768) closeSidebar();
 }
 
 // Text Processing for Chemistry
@@ -358,6 +420,7 @@ function startNewChat() {
     
     renderChatHistory();
     userInput.focus();
+    if (window.innerWidth < 768) closeSidebar();
 }
 
 chatForm.addEventListener('submit', (e) => {
@@ -371,6 +434,7 @@ userInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     sendBtn.disabled = this.value.trim().length === 0;
+    updateChatContainerBottomPadding();
 });
 
 userInput.addEventListener('keydown', function(e) {
