@@ -83,7 +83,7 @@ if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
 
 function initializeSidebarState() {
     if (window.innerWidth < 768) {
-        openSidebar();
+        closeSidebar();
     } else {
         sidebar.classList.remove('-translate-x-full');
         sidebar.classList.add('translate-x-0');
