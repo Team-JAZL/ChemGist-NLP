@@ -1,0 +1,9 @@
+# Ignore backend and dataset files for static Vercel deployment
+api/
+data/
+benchmarking/
+markdown/
+src/
+*.py
+*.ipynb
+requirements.txt
