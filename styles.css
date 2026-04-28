@@ -86,3 +86,7 @@ textarea {
 .dark .scrollbar-thumb {
     background: #475569;
 }
+
+#chat-container {
+    scroll-padding-bottom: 8rem;
+}
